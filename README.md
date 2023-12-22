@@ -6,6 +6,26 @@ make
 ```
 ./usf
 ```
+<h2>Option</h2>
+Eng:
+------------------ Menu --------------------------------
+1 - Execute a command (format, ls, mkdir, create, rm).
+2 - run command in a file 
+0 - exit.
+--------------------------------------------------------
+
+fr:
+------------------ Menu --------------------------------
+1 - Executer une commande (format, ls, mkdir, create, rm).
+2 - Executer plusieurs commandes se trouvant dans un fichier texte.
+0 - Quitter.
+--------------------------------------------------------
+
+Entrer s.v.p. votre choix (0 a 2):? 1
+Entrez le nom du fichier: (format, ls, mkdir, create, rm) /home
+
+Entrer s.v.p. votre choix (0 a 2):? 2
+Entrez le nom du fichier: "Filename"
 
 <h1>Tests</h1>
 <h2>Test1</h2>
