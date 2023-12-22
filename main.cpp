@@ -19,16 +19,13 @@
 using namespace std;
 using namespace TP3;
 
-/* Le parser utilise la structure suivante pour pouvoir appeler la bonne fonction */
 typedef struct
 {
     string StrCommande;
     size_t nArguments;
 } EntreeCommande;
 
-/* Le tableau suivant est utilisé par le parseur de commandes et l'interpreteur */
 vector<EntreeCommande> TableDesFonctions = {
-    //              nom       nombre d'argument
     {.StrCommande = "mkdir", .nArguments = 1},
     {.StrCommande = "ls", .nArguments = 1},
     {.StrCommande = "rm", .nArguments = 1},
@@ -40,8 +37,6 @@ int fonctionExecute(const string &p_commande, DisqueVirtuel *p_disqueVirtuel);
 int main(int argc, char **argv)
 {
     int choix = -1;
-
-    // Création de la variable représentant le disque virtuel
     DisqueVirtuel mon_disque;
 
     while (choix != 0)
@@ -106,7 +101,6 @@ int fonctionExecute(const string &p_commande, DisqueVirtuel *p_disqueVirtuel)
 {
 
     int retour = -1;
-    // Découper la commande en plusieurs chaînes
     vector<string> v_splitCommande;
     std::string chaine = p_commande;
     size_t found = chaine.find_first_of(" ");
@@ -120,12 +114,8 @@ int fonctionExecute(const string &p_commande, DisqueVirtuel *p_disqueVirtuel)
 
     for (size_t index = 0; index < 5; index++)
     {
-
-        // Recherche de la bonne commande à exécuter
         if (TableDesFonctions[index].StrCommande == v_splitCommande[0])
         {
-
-            // Nombre d’arguments ne correspondant pas à la commande
             if (TableDesFonctions[index].nArguments != (v_splitCommande.size() - 1))
             {
                 cout << "La commande " << v_splitCommande[0] << " demande " << TableDesFonctions[index].nArguments << " arguments" << endl;
@@ -142,7 +132,6 @@ int fonctionExecute(const string &p_commande, DisqueVirtuel *p_disqueVirtuel)
                     cout << endl
                          << "===== Commande " << v_splitCommande[0] << " =====" << endl;
                 }
-                // Appel de la commande en lui passant en paramètre l’argument si nécessaire
                 switch (index)
                 {
                 case 0:

@@ -1,14 +1,3 @@
-/**
- * \file block.h
- * \brief Gestion d'un bloc dans un disque virtuel.
- * \author GLO-2001
- * \version 0.1
- * \date 2023
- *
- *  Travail pratique numéro 3
- *
- */
-
 #include <string>
 #include <vector>
 

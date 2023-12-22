@@ -1,13 +1,3 @@
-/**
- * \file disqueVirtuel.cpp
- * \brief Implémentation d'un disque virtuel.
- * \author ?
- * \version 0.1
- * \date  2023
- *
- *  Travail pratique numéro 3
- *
- */
 #include <stdio.h>
 #include "disqueVirtuel.h"
 #include <iostream>
@@ -15,17 +5,14 @@
 #include <sstream>
 #include <algorithm>
 #include <numeric>
-// vous pouvez inclure d'autres librairies si c'est nécessaire
 
 namespace TP3
 {
-    //constructor
     DisqueVirtuel::DisqueVirtuel()
     {
         bd_FormatDisk();
     }
 
-    //Destructor
     DisqueVirtuel::~DisqueVirtuel()
     {
         for (auto& block : m_blockDisque)
@@ -45,7 +32,6 @@ namespace TP3
         m_blockDisque.clear();
     }
 
-    //rm
     int DisqueVirtuel::bd_rm(const std::string &p_Filename)
     {
         std::vector<std::string> paths = seperatePathToVector(p_Filename);
@@ -72,7 +58,6 @@ namespace TP3
         return 0;
     }
 
-    //verifie si le dirEntry est vide
     bool DisqueVirtuel::isDirEntryEmpty(const vector<dirEntry *> vecDirEntry)
     {
         bool empty = true;
@@ -87,7 +72,6 @@ namespace TP3
         return empty;
     }
 
-    //mkdir
     int DisqueVirtuel::bd_mkdir(const std::string &p_DirName)
     {
         if (p_DirName == "/")
@@ -141,7 +125,6 @@ namespace TP3
         return 1;
     }
 
-    //update les node parent
     void DisqueVirtuel::updateParents(iNode *childInode, size_t childInodeIndex, COMMAND command)
     {
         size_t blocToFind = m_blockDisque.at(BASE_BLOCK_INODE + childInode->st_ino).m_inode->st_block;
@@ -181,7 +164,6 @@ namespace TP3
         return;
     }
 
-    //trouve une node
     iNode *DisqueVirtuel::findNode(int currentINode, std::vector<std::string> path, COMMAND command)
     {
         size_t inode = currentINode;
@@ -206,7 +188,6 @@ namespace TP3
         return m_blockDisque.at(BASE_BLOCK_INODE + ROOT_INODE).m_inode;
     }
 
-    //format disk
     int DisqueVirtuel::bd_FormatDisk()
     {
         for (auto block : m_blockDisque)
@@ -228,7 +209,6 @@ namespace TP3
         return 0;
     }
 
-    //ls
     std::string DisqueVirtuel::bd_ls(const std::string &p_DirLocation)
     {
         std::vector<std::string> path = seperatePathToVector(p_DirLocation);
@@ -265,7 +245,6 @@ namespace TP3
         return output.str();
     }
 
-    //create
     int DisqueVirtuel::bd_create(const std::string &p_FileName)
     {
 
@@ -309,7 +288,6 @@ namespace TP3
         return 1;
     }
 
-    //trouve la root i-node
     size_t DisqueVirtuel::findRootINode()
     {
         size_t root_iNode;
@@ -327,11 +305,8 @@ namespace TP3
         return root_iNode;
     }
 
-    //initialise tout les blocks
     void DisqueVirtuel::initAllBlocks()
     {
-
-        // Clear disk
         if (m_blockDisque.size() > 0)
         {
             m_blockDisque.clear();
@@ -360,7 +335,6 @@ namespace TP3
                 newBlock.m_inode = new iNode(inode);
                 m_blockDisque.push_back(newBlock);
 
-                // Set block to taken
                 m_blockDisque.at(FREE_BLOCK_BITMAP).m_bitmap.at(firstFreeBlock) = false;
             }
             else
@@ -370,14 +344,12 @@ namespace TP3
         }
     }
 
-    //create le root directory
     void DisqueVirtuel::createRootDirectory()
     {
         size_t rootBlock = m_blockDisque.at(BASE_BLOCK_INODE + 1).m_inode->st_block;
         size_t rootBlockINode = m_blockDisque.at(BASE_BLOCK_INODE + 1).m_inode->st_ino;
         printToConsole(rootBlockINode, rootBlock, format);
 
-        // m_blockDisque.at(rootBlock).m_dirEntry.reserve(2);
         m_blockDisque.at(rootBlock).m_dirEntry.push_back(new dirEntry(1, "."));
         m_blockDisque.at(rootBlock).m_dirEntry.push_back(new dirEntry(1, ".."));
         m_blockDisque.at(rootBlock).m_type_donnees = S_IFDE;
@@ -387,7 +359,6 @@ namespace TP3
         m_blockDisque.at(FREE_INODE_BITMAP).m_bitmap.at(rootBlockINode) = false;
     }
 
-    //separe la path en vector
     std::vector<std::string> DisqueVirtuel::seperatePathToVector(const std::string &path)
     {
         std::istringstream ss(path);
@@ -411,7 +382,6 @@ namespace TP3
         return tokens;
     }
 
-    //initialise les block du bitmap
     std::vector<bool> DisqueVirtuel::initFreeBlockBitmap()
     {
 
@@ -428,8 +398,6 @@ namespace TP3
 
         return fbbitmap;
     }
-
-    //trouve le premier block vide
     size_t DisqueVirtuel::findFirstFreeBlock(std::vector<bool> &fb_bitmap)
     {
 
@@ -445,7 +413,6 @@ namespace TP3
         return -1;
     }
 
-    //trouve le premier inode bitmap
     std::vector<bool> DisqueVirtuel::initFreeINodeBitmap()
     {
 
@@ -461,7 +428,6 @@ namespace TP3
         return finbitmap;
     }
 
-    //trouve le premier inode vide
     size_t DisqueVirtuel::findFirstFreeINode(std::vector<bool> &fin_bitmap)
     {
         for (int i = 0; i < N_INODE_ON_DISK; i++)
@@ -474,7 +440,6 @@ namespace TP3
         return -1;
     }
 
-    //print to console
     void DisqueVirtuel::printToConsole(size_t st_ino, size_t st_block, COMMAND command)
     {
         std::stringstream output;
