@@ -37,6 +37,7 @@ int fonctionExecute(const string &p_commande, DisqueVirtuel *p_disqueVirtuel);
 int main(int argc, char **argv)
 {
     int choix = -1;
+
     DisqueVirtuel mon_disque;
 
     while (choix != 0)
@@ -114,8 +115,10 @@ int fonctionExecute(const string &p_commande, DisqueVirtuel *p_disqueVirtuel)
 
     for (size_t index = 0; index < 5; index++)
     {
+
         if (TableDesFonctions[index].StrCommande == v_splitCommande[0])
         {
+
             if (TableDesFonctions[index].nArguments != (v_splitCommande.size() - 1))
             {
                 cout << "La commande " << v_splitCommande[0] << " demande " << TableDesFonctions[index].nArguments << " arguments" << endl;

@@ -43,16 +43,20 @@ namespace TP3
 
         inode->st_nlink--;
         Block &block = m_blockDisque.at(inode->st_block);
+        iNode *parentInode = m_blockDisque.at(BASE_BLOCK_INODE + block.m_dirEntry.at(1)->m_iNode).m_inode;
+        
         if (inode->st_mode == S_IFDIR && isDirEntryEmpty(block.m_dirEntry))
         {
             printToConsole(inode->st_ino, inode->st_block, rmd);
             updateParents(inode, inode->st_ino, rm);
+            parentInode->st_nlink--;
         }
 
         if (inode->st_mode == S_IFREG && inode->st_nlink == 0)
         {
             printToConsole(inode->st_ino, 0, rmf);
             updateParents(inode, inode->st_ino, rm);
+            parentInode->st_nlink--;
         }
 
         return 0;
@@ -80,8 +84,14 @@ namespace TP3
         }
 
         std::vector<std::string> path = seperatePathToVector(p_DirName);
+
         iNode *inode = m_blockDisque.at(BASE_BLOCK_INODE + ROOT_INODE).m_inode;
-        string lastPath;
+        
+        if(findNode(ROOT_INODE,path,ls) != 0){
+            cout << "Directory already exist!" << endl;
+            return 0;
+        }
+
         for (auto p : path)
         {
             bool foundOne = false;
@@ -94,7 +104,6 @@ namespace TP3
                 {
                     foundOne = true;
                     vector<string> p2(1, p);
-                    lastPath = p;
                     inode = findNode(val->m_iNode, p2, mkdir);
                     break;
                 }
@@ -102,27 +111,39 @@ namespace TP3
             if (!foundOne)
             {
                 size_t firstFreeINode = findFirstFreeINode(m_blockDisque[FREE_INODE_BITMAP].m_bitmap);
-                m_blockDisque[inode->st_block].m_dirEntry.push_back(new dirEntry(firstFreeINode, p));
 
-                size_t blockID = m_blockDisque[BASE_BLOCK_INODE + firstFreeINode].m_inode->st_block;
-                Block &b = m_blockDisque[blockID];
-
-                printToConsole(firstFreeINode, blockID, mkdir);
-
-                b.m_type_donnees = S_IFDE;
-                b.m_dirEntry.push_back(new dirEntry(firstFreeINode, "."));
-                b.m_dirEntry.push_back(new dirEntry(inode->st_ino, ".."));
-
-                m_blockDisque[BASE_BLOCK_INODE + firstFreeINode].m_inode->st_nlink++;
-                m_blockDisque[BASE_BLOCK_INODE + firstFreeINode].m_inode->st_mode = S_IFDIR;
-                m_blockDisque[BASE_BLOCK_INODE + firstFreeINode].m_inode->st_size = 28;
-                m_blockDisque[FREE_INODE_BITMAP].m_bitmap[firstFreeINode] = false;
+                createEmptyDirectory(firstFreeINode, inode, p);
 
                 inode = m_blockDisque[BASE_BLOCK_INODE + firstFreeINode].m_inode;
+
                 updateParents(inode, inode->st_ino, mkdir);
             }
         }
         return 1;
+    }
+
+    void DisqueVirtuel::createEmptyDirectory(size_t firstFreeINode, iNode *parentINode, string filename)
+    {
+
+        m_blockDisque[parentINode->st_block].m_dirEntry.push_back(new dirEntry(firstFreeINode, filename));
+
+        size_t blockID = m_blockDisque[BASE_BLOCK_INODE + firstFreeINode].m_inode->st_block;
+        Block &b = m_blockDisque[blockID];
+
+        printToConsole(firstFreeINode, blockID, mkdir);
+
+        b.m_type_donnees = S_IFDE;
+        b.m_dirEntry.push_back(new dirEntry(firstFreeINode, "."));
+        b.m_dirEntry.push_back(new dirEntry(parentINode->st_ino, ".."));
+
+        m_blockDisque[BASE_BLOCK_INODE + firstFreeINode].m_inode->st_nlink++;
+        m_blockDisque[BASE_BLOCK_INODE + firstFreeINode].m_inode->st_nlink++;
+        m_blockDisque[BASE_BLOCK_INODE + firstFreeINode].m_inode->st_mode = S_IFDIR;
+        m_blockDisque[BASE_BLOCK_INODE + firstFreeINode].m_inode->st_size = 56;
+        m_blockDisque[FREE_INODE_BITMAP].m_bitmap[firstFreeINode] = false;
+
+        iNode *parentInode = m_blockDisque.at(BASE_BLOCK_INODE + b.m_dirEntry.at(1)->m_iNode).m_inode;
+        parentInode->st_nlink++;
     }
 
     void DisqueVirtuel::updateParents(iNode *childInode, size_t childInodeIndex, COMMAND command)
@@ -131,6 +152,7 @@ namespace TP3
         Block &block = m_blockDisque.at(blocToFind);
 
         iNode *parentInode = m_blockDisque.at(BASE_BLOCK_INODE + block.m_dirEntry.at(1)->m_iNode).m_inode;
+
         if (command == rm)
         {
             if (childInode->st_ino == childInodeIndex)
@@ -148,19 +170,19 @@ namespace TP3
                 childInode->st_mode = 0;
                 childInode->st_nlink = 0;
             }
-            parentInode->st_nlink--;
             if (childInode->st_mode == S_IFDIR)
                 parentInode->st_size -= 28;
         }
         else
         {
-            parentInode->st_nlink++;
             if (childInode->st_mode == S_IFDIR)
                 parentInode->st_size += 28;
         }
 
         if (childInode->st_ino != ROOT_INODE && childInode->st_mode != S_IFREG)
             updateParents(parentInode, childInodeIndex, command);
+        
+
         return;
     }
 
@@ -180,7 +202,7 @@ namespace TP3
                     break;
                 }
             }
-            if (command == rm && !isExist)
+            if ((command == rm && !isExist) || (command == ls && !isExist)) 
                 return nullptr;
             if (i == path.size() - 1 && m_blockDisque[BASE_BLOCK_INODE + inode].m_type_donnees == S_IFIN)
                 return m_blockDisque[BASE_BLOCK_INODE + inode].m_inode;
@@ -284,25 +306,11 @@ namespace TP3
 
         inode = m_blockDisque[BASE_BLOCK_INODE + firstFreeINode].m_inode;
         updateParents(inode, inode->st_ino, create);
+        
+        iNode *parentInode = m_blockDisque.at(BASE_BLOCK_INODE + b.m_dirEntry.at(1)->m_iNode).m_inode;
+        parentInode->st_nlink++;
 
         return 1;
-    }
-
-    size_t DisqueVirtuel::findRootINode()
-    {
-        size_t root_iNode;
-        for (int i = 0; i < 128; i++)
-        {
-            if (m_blockDisque.at(i).m_type_donnees == S_IFIN)
-            {
-                if (m_blockDisque.at(i).m_inode->st_ino == 1)
-                {
-                    root_iNode = m_blockDisque.at(i).m_inode->st_ino;
-                    break;
-                }
-            }
-        }
-        return root_iNode;
     }
 
     void DisqueVirtuel::initAllBlocks()
@@ -398,6 +406,7 @@ namespace TP3
 
         return fbbitmap;
     }
+
     size_t DisqueVirtuel::findFirstFreeBlock(std::vector<bool> &fb_bitmap)
     {
 

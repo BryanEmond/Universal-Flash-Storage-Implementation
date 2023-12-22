@@ -11,7 +11,7 @@ namespace TP3
 #define FREE_BLOCK_BITMAP 2 
 #define FREE_INODE_BITMAP 3 
 #define BASE_BLOCK_INODE 4  
-#define ROOT_INODE 1       
+#define ROOT_INODE 1        
 
     enum COMMAND
     {
@@ -37,7 +37,7 @@ namespace TP3
         int bd_rm(const std::string &p_Filename);
 
     private:
-        std::vector<Block> m_blockDisque;
+        std::vector<Block> m_blockDisque; 
         std::vector<bool> initFreeBlockBitmap();
         std::vector<bool> initFreeINodeBitmap();
         size_t findFirstFreeBlock(std::vector<bool> &fb_bitmap);
@@ -45,6 +45,7 @@ namespace TP3
         size_t findRootINode();
         std::vector<std::string> seperatePathToVector(const std::string &path);
         void createRootDirectory();
+        void createEmptyDirectory(size_t firstFreeINode, iNode *parentINode, string filename);
         void initAllBlocks();
 
         bool isDirEntryEmpty(const vector<dirEntry *> vecDirEntry);
