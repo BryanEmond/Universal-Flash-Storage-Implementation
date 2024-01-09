@@ -2,7 +2,7 @@
 
 Implementation of a virtual data storage based on UFS.
 
-<h1>Run</h1>
+### Run
 
 ```
 make
@@ -10,7 +10,7 @@ make
 ```
 ./usf
 ```
-<h2>Option</h2>
+### Option
 
 ```
 Eng:
@@ -33,8 +33,8 @@ Entrez le nom du fichier: (format, ls, mkdir, create, rm) /home
 Entrer s.v.p. votre choix (0 a 2):? 2
 Entrez le nom du fichier: "Filename"
 ```
-<h1>Tests</h1>
-<h2>Test1</h2>
+### Tests
+### Test1
 output:
 
 ``` 
@@ -141,7 +141,7 @@ d .             Size: 56                iNode: 1                nlink: 2
 d ..            Size: 56                iNode: 1                nlink: 2
 
 ```
-<h2>Test2</h2>
+### Test2
 output:
 
 ``` 
